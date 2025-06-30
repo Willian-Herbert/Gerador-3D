@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="pt-BR"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerador 3D - Upload de Imagens e Vídeos</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+            font-weight: 300;
+        }
+        
+        .features {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f0f4ff;
+            border-radius: 10px;
+        }
+        
+        .feature {
+            text-align: center;
+            flex: 1;
+            padding: 0 10px;
+        }
+        
+        .feature-icon {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+        
+        .feature-title {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        
+        .feature-desc {
+            color: #666;
+            font-size: 0.9em;
+        }
+        
+        .upload-area {
+            border: 3px dashed #667eea;
+            border-radius: 10px;
+            padding: 40px;
+            text-align: center;
+            background: #f8f9ff;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+        
+        .upload-area:hover {
+            border-color: #764ba2;
+            background: #f0f2ff;
+        }
+        
+        .upload-area.dragover {
+            border-color: #4CAF50;
+            background: #e8f5e8;
+        }
+        
+        .upload-icon {
+            font-size: 4em;
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+        
+        .upload-text {
+            font-size: 1.2em;
+            color: #666;
+            margin-bottom: 10px;
+        }
+        
+        .upload-hint {
+            color: #999;
+            font-size: 0.9em;
+        }
+        
+        #fileInput {
+            display: none;
+        }
+        
+        .file-list {
+            max-height: 200px;
+            overflow-y: auto;
+            margin: 20px 0;
+            background: #f9f9f9;
+            border-radius: 8px;
+            padding: 15px;
+        }
+        
+        .file-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .file-item:last-child {
+            border-bottom: none;
+        }
+        
+        .file-name {
+            color: #333;
+            font-size: 0.9em;
+        }
+        
+        .file-size {
+            color: #666;
+            font-size: 0.8em;
+        }
+        
+        .remove-btn {
+            background: #ff4757;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 4px 8px;
+            cursor: pointer;
+            font-size: 0.8em;
+        }
+        
+        .remove-btn:hover {
+            background: #ff3742;
+        }
+        
+        .upload-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 15px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+        
+        .upload-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .upload-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #f0f0f0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 20px 0;
+            display: none;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        
+        .status {
+            text-align: center;
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            display: none;
+        }
+        
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .tips {
+            background: #e7f3ff;
+            border: 1px solid #b8daff;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 30px;
+        }
+        
+        .tips h3 {
+            color: #004085;
+            margin-bottom: 10px;
+        }
+        
+        .tips ul {
+            color: #004085;
+            margin-left: 20px;
+        }
+        
+        .tips li {
+            margin-bottom: 5px;
+        }
+        
+        .upload-tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .tab-btn {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            background: #f8f9fa;
+            color: #666;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1em;
+        }
+        
+        .tab-btn:hover {
+            background: #e9ecef;
+        }
+        
+        .tab-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .video-info {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+            display: none;
+        }
+        
+        .video-info.show {
+            display: block;
+        }
+        
+        .video-info h4 {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+        
+        .video-info p {
+            color: #856404;
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 Gerador 3D</h1>
+        <p class="subtitle">Reconstrução 3D completa com malhas texturizadas</p>
+        
+        <div class="features">
+            <div class="feature">
+                <div class="feature-icon">🔷</div>
+                <div class="feature-title">Malhas 3D</div>
+                <div class="feature-desc">Superfícies sólidas com geometria completa</div>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">🎨</div>
+                <div class="feature-title">Texturas</div>
+                <div class="feature-desc">Cores e padrões realistas aplicados</div>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">🔍</div>
+                <div class="feature-title">Alta Qualidade</div>
+                <div class="feature-desc">Reconstrução densa com detalhes precisos</div>
+            </div>
+        </div>
+        
+        <div class="upload-tabs">
+            <button class="tab-btn active" onclick="switchTab(&#39;images&#39;)">📸 Imagens</button>
+            <button class="tab-btn" onclick="switchTab(&#39;video&#39;)">🎥 Vídeo</button>
+        </div>
+        
+        <div class="upload-area" id="imageUpload" onclick="document.getElementById(&#39;fileInput&#39;).click()">
+            <div class="upload-icon">📸</div>
+            <div class="upload-text">Clique aqui ou arraste suas imagens</div>
+            <div class="upload-hint">Selecione múltiplas imagens (JPG, PNG) para malha 3D com texturas</div>
+        </div>
+        
+        <div class="upload-area" id="videoUpload" style="display: none;" onclick="document.getElementById(&#39;videoInput&#39;).click()">
+            <div class="upload-icon">🎥</div>
+            <div class="upload-text">Clique aqui ou arraste seu vídeo</div>
+            <div class="upload-hint">Vídeo em alta resolução para modelo 3D texturizado (MP4, MOV, AVI)</div>
+        </div>
+        
+        <input type="file" id="fileInput" multiple="" accept="image/*">
+        <input type="file" id="videoInput" accept="video/*" style="display: none;">
+        
+        <div class="file-list" id="fileList" style="display: none;">
+            <h3>Imagens selecionadas:</h3>
+            <div id="files"></div>
+        </div>
+        
+        <div class="video-info" id="videoInfo">
+            <h4>📹 Vídeo selecionado:</h4>
+            <p id="videoDetails"></p>
+            <p><strong>Processamento:</strong> Extraindo frames inteligentemente...</p>
+        </div>
+        
+        <button class="upload-btn" id="uploadBtn" disabled="" onclick="uploadFiles()">
+            Gerar Modelo 3D
+        </button>
+        
+        <div class="progress-bar" id="progressBar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+        
+        <div class="status" id="status"></div>
+        
+        <div class="tips">
+            <h3>💡 Dicas para melhor reconstrução:</h3>
+            <ul>
+                <li><strong>📸 Imagens:</strong> Use pelo menos 10-15 imagens em diferentes ângulos</li>
+                <li><strong>🎥 Vídeo:</strong> Filme ao redor do objeto por 30-60 segundos</li>
+                <li>Mantenha boa iluminação e evite sombras fortes</li>
+                <li>Certifique-se que há sobreposição entre as imagens/frames</li>
+                <li>Objetos com textura funcionam melhor que superfícies lisas</li>
+                <li>Evite movimentos muito rápidos no vídeo</li>
+                <li><strong>Vídeo ideal:</strong> 4K, 60fps, movimento circular suave</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        let selectedFiles = [];
+        let selectedVideo = null;
+        let currentMode = 'images';
+        
+        const fileInput = document.getElementById('fileInput');
+        const videoInput = document.getElementById('videoInput');
+        const fileList = document.getElementById('fileList');
+        const videoInfo = document.getElementById('videoInfo');
+        const filesDiv = document.getElementById('files');
+        const uploadBtn = document.getElementById('uploadBtn');
+        const imageUpload = document.getElementById('imageUpload');
+        const videoUpload = document.getElementById('videoUpload');
+        const progressBar = document.getElementById('progressBar');
+        const progressFill = document.getElementById('progressFill');
+        const status = document.getElementById('status');
+        
+        // Tab switching
+        function switchTab(mode) {
+            currentMode = mode;
+            const tabs = document.querySelectorAll('.tab-btn');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            if (mode === 'images') {
+                imageUpload.style.display = 'block';
+                videoUpload.style.display = 'none';
+                videoInfo.classList.remove('show');
+                fileList.style.display = selectedFiles.length > 0 ? 'block' : 'none';
+                uploadBtn.disabled = selectedFiles.length === 0;
+            } else {
+                imageUpload.style.display = 'none';
+                videoUpload.style.display = 'block';
+                fileList.style.display = 'none';
+                videoInfo.classList.toggle('show', selectedVideo !== null);
+                uploadBtn.disabled = selectedVideo === null;
+            }
+        }
+        
+        // Drag and drop for both areas
+        [imageUpload, videoUpload].forEach(area => {
+            area.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                area.classList.add('dragover');
+            });
+            
+            area.addEventListener('dragleave', () => {
+                area.classList.remove('dragover');
+            });
+            
+            area.addEventListener('drop', (e) => {
+                e.preventDefault();
+                area.classList.remove('dragover');
+                const files = Array.from(e.dataTransfer.files);
+                
+                if (area === imageUpload) {
+                    handleFiles(files);
+                } else {
+                    handleVideo(files[0]);
+                }
+            });
+        });
+        
+        fileInput.addEventListener('change', (e) => {
+            const files = Array.from(e.target.files);
+            handleFiles(files);
+        });
+        
+        videoInput.addEventListener('change', (e) => {
+            handleVideo(e.target.files[0]);
+        });
+        
+        function handleFiles(files) {
+            const imageFiles = files.filter(file => file.type.startsWith('image/'));
+            selectedFiles = [...selectedFiles, ...imageFiles];
+            updateFileList();
+        }
+        
+        function handleVideo(file) {
+            if (!file || !file.type.startsWith('video/')) {
+                showStatus('error', '❌ Por favor, selecione um arquivo de vídeo válido.');
+                return;
+            }
+            
+            selectedVideo = file;
+            updateVideoInfo();
+        }
+        
+        function updateVideoInfo() {
+            if (!selectedVideo) {
+                videoInfo.classList.remove('show');
+                uploadBtn.disabled = true;
+                return;
+            }
+            
+            const sizeInMB = (selectedVideo.size / 1024 / 1024).toFixed(2);
+            document.getElementById('videoDetails').innerHTML = `
+                <strong>Nome:</strong> ${selectedVideo.name}<br>
+                <strong>Tamanho:</strong> ${sizeInMB} MB<br>
+                <strong>Tipo:</strong> ${selectedVideo.type}
+            `;
+            
+            videoInfo.classList.add('show');
+            uploadBtn.disabled = false;
+        }
+        
+        function updateFileList() {
+            if (selectedFiles.length === 0) {
+                fileList.style.display = 'none';
+                uploadBtn.disabled = true;
+                return;
+            }
+            
+            fileList.style.display = 'block';
+            uploadBtn.disabled = false;
+            
+            filesDiv.innerHTML = '';
+            selectedFiles.forEach((file, index) => {
+                const fileItem = document.createElement('div');
+                fileItem.className = 'file-item';
+                fileItem.innerHTML = `
+                    <div>
+                        <div class="file-name">${file.name}</div>
+                        <div class="file-size">${(file.size / 1024 / 1024).toFixed(2)} MB</div>
+                    </div>
+                    <button class="remove-btn" onclick="removeFile(${index})">Remover</button>
+                `;
+                filesDiv.appendChild(fileItem);
+            });
+        }
+        
+        function removeFile(index) {
+            selectedFiles.splice(index, 1);
+            updateFileList();
+        }
+        
+        async function uploadFiles() {
+            const formData = new FormData();
+            
+            uploadBtn.disabled = true;
+            uploadBtn.textContent = 'Processando...';
+            progressBar.style.display = 'block';
+            status.style.display = 'none';
+            
+            let endpoint = '';
+            
+            if (currentMode === 'images' && selectedFiles.length > 0) {
+                selectedFiles.forEach(file => {
+                    formData.append('files', file);
+                });
+                endpoint = '/reconstruir';
+            } else if (currentMode === 'video' && selectedVideo) {
+                formData.append('video', selectedVideo);
+                endpoint = '/reconstruir';  // Usando o mesmo endpoint
+            } else {
+                showStatus('error', '❌ Selecione arquivos antes de processar.');
+                uploadBtn.disabled = false;
+                uploadBtn.textContent = 'Gerar Modelo 3D';
+                return;
+            }
+            
+            try {
+                const response = await fetch(`http://localhost:8000${endpoint}`, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                progressFill.style.width = '100%';
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    showStatus('success', `✅ Modelo gerado com sucesso! <br><br><a href="http://localhost:8000${result.url}" target="_blank" style="color: #155724; font-weight: bold;">👀 Visualizar Modelo 3D</a>`);
+                } else {
+                    showStatus('error', `❌ Erro: ${result.error || 'Erro desconhecido'}`);
+                }
+            } catch (error) {
+                showStatus('error', `❌ Erro de conexão: ${error.message}`);
+            } finally {
+                uploadBtn.disabled = false;
+                uploadBtn.textContent = 'Gerar Modelo 3D';
+                setTimeout(() => {
+                    progressBar.style.display = 'none';
+                    progressFill.style.width = '0%';
+                }, 2000);
+            }
+        }
+        
+        function showStatus(type, message) {
+            status.className = `status ${type}`;
+            status.innerHTML = message;
+            status.style.display = 'block';
+        }
+        
+        // Simular progresso durante upload
+        function simulateProgress() {
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += Math.random() * 15;
+                if (progress > 90) progress = 90;
+                progressFill.style.width = progress + '%';
+                if (progress >= 90) clearInterval(interval);
+            }, 500);
+        }
+        
+        // Iniciar simulação de progresso quando começar upload
+        const originalFetch = fetch;
+        window.fetch = function(...args) {
+            if (args[0].includes('/reconstruir')) {
+                simulateProgress();
+            }
+            return originalFetch.apply(this, args);
+        };
+    </script>
+<!-- Code injected by live-server -->
+<script>
+	// <![CDATA[  <-- For SVG support
+	if ('WebSocket' in window) {
+		(function () {
+			function refreshCSS() {
+				var sheets = [].slice.call(document.getElementsByTagName("link"));
+				var head = document.getElementsByTagName("head")[0];
+				for (var i = 0; i < sheets.length; ++i) {
+					var elem = sheets[i];
+					var parent = elem.parentElement || head;
+					parent.removeChild(elem);
+					var rel = elem.rel;
+					if (elem.href && typeof rel != "string" || rel.length == 0 || rel.toLowerCase() == "stylesheet") {
+						var url = elem.href.replace(/(&|\?)_cacheOverride=\d+/, '');
+						elem.href = url + (url.indexOf('?') >= 0 ? '&' : '?') + '_cacheOverride=' + (new Date().valueOf());
+					}
+					parent.appendChild(elem);
+				}
+			}
+			var protocol = window.location.protocol === 'http:' ? 'ws://' : 'wss://';
+			var address = protocol + window.location.host + window.location.pathname + '/ws';
+			var socket = new WebSocket(address);
+			socket.onmessage = function (msg) {
+				if (msg.data == 'reload') window.location.reload();
+				else if (msg.data == 'refreshcss') refreshCSS();
+			};
+			if (sessionStorage && !sessionStorage.getItem('IsThisFirstTime_Log_From_LiveServer')) {
+				console.log('Live reload enabled.');
+				sessionStorage.setItem('IsThisFirstTime_Log_From_LiveServer', true);
+			}
+		})();
+	}
+	else {
+		console.error('Upgrade your browser. This Browser is NOT supported WebSocket for Live-Reloading.');
+	}
+	// ]]>
+</script>
+
+
+</body></html>
